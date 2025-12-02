@@ -1,56 +1,110 @@
 body {
-    background: #f2f2f2;
     font-family: Arial, sans-serif;
+    background: #f5f5f7;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
-    width: 350px;
-    margin: 50px auto;
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+.left-panel, .right-panel {
     padding: 20px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-label {
-    display: block;
-    margin-top: 15px;
-    font-weight: bold;
+.left-panel {
+    width: 40%;
+    background: #ffffff;
+    border-right: 2px solid #ddd;
 }
 
-input, textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+.right-panel {
+    width: 60%;
+    background: #fafafa;
 }
 
-textarea {
-    height: 120px;
-    resize: none;
+h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    border: none;
-    border-radius: 5px;
-    background: #25D366;
+.input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 8px;
+}
+
+#add-contato {
+    background: #4CAF50;
     color: white;
-    font-weight: bold;
+    padding: 8px 12px;
+    border: none;
     cursor: pointer;
 }
 
-button:hover {
-    background: #1ebe5d;
+#add-contato:hover {
+    background: #45a049;
 }
 
-#salvar {
-    background: #007bff;
+#lista-contatos {
+    list-style: none;
+    padding: 0;
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
-#salvar:hover {
-    background: #0069d9;
+#lista-contatos li {
+    padding: 10px;
+    background: #f2f2f2;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 6px;
+}
+
+.del-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 9px;
+    cursor: pointer;
+}
+
+.enviar-btn {
+    margin-top: 20px;
+    width: 100%;
+    background: #0088cc;
+    color: white;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.enviar-btn:hover {
+    background: #0077b3;
+}
+
+.checkbox-group {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 20px;
+    font-size: 18px;
+}
+
+textarea {
+    width: 100%;
+    height: 60vh;
+    padding: 10px;
+    font-size: 16px;
+    resize: none;
 }

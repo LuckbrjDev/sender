@@ -2,24 +2,41 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>WhatsApp Sender</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envio WhatsApp</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>WhatsApp Sender</h1>
 
-    <label>Número do WhatsApp:</label>
-    <input type="text" id="numero" placeholder="DDD + Número (somente números)">
+    <div class="left-panel">
+        <h2>Contatos</h2>
 
-    <label>Mensagem:</label>
-    <textarea id="mensagem" placeholder="Digite sua mensagem..."></textarea>
+        <div class="input-group">
+            <input type="text" id="nome" placeholder="Nome">
+            <input type="text" id="telefone" placeholder="Telefone (com DDD)">
+            <button id="add-contato">Adicionar</button>
+        </div>
 
-    <button id="salvar">Salvar Mensagem</button>
-    <button id="enviar">Enviar WhatsApp</button>
+        <ul id="lista-contatos"></ul>
+
+        <button id="enviar-todos" class="enviar-btn">Enviar para Todos</button>
+    </div>
+
+    <div class="right-panel">
+        <h2>Mensagem</h2>
+
+        <div class="checkbox-group">
+            <label><input type="checkbox" id="chk-avaliacao"> Avaliação</label>
+            <label><input type="checkbox" id="chk-encerramento"> Encerramento</label>
+        </div>
+
+        <textarea id="mensagem" placeholder="Mensagem aparecerá aqui automaticamente..."></textarea>
+    </div>
+
 </div>
-<h5>©Flavio Aurora, direitos reservados</h5>
+
 <script src="script.js"></script>
 </body>
 </html>
