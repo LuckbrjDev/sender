@@ -28,12 +28,13 @@ let contacts = [];
 
 /* ---------- MESSAGES TEMPLATES ---------- */
 const TEMPLATES = {
-  avaliacao: `Assunto: Lembrete de Avaliação de Suporte - Softem
+  avaliacao: `Olá, tudo bem? 😊
 
-"Olá, tudo bem?
-Sou o Flavio, da equipe de Suporte da Softem. Notei que a avaliação do nosso último atendimento consta como pendente.
-O formulário foi encaminhado para [e-mail do cliente]. Caso não o encontre na caixa de entrada, poderia verificar se caiu na caixa de Spam?
-Sua opinião é fundamental para o meu desempenho e para melhorarmos nossos serviços. Agradeço desde já!"`,
+Aqui é o (nome do técnico) da Soften. Só passando para confirmar se ficou alguma dúvida ou pendência do nosso último atendimento — posso te ajudar em algo mais?
+
+Aproveitando, percebi que a avaliação ainda está pendente. O formulário foi enviado para seu e-mail. Se puder dar uma olhadinha (inclusive no Spam), isso me ajuda muito!
+
+Obrigado pela colaboração! `,
 
   encerramento: `Olá [Nome do Cliente!]
 
