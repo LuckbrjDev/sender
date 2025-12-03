@@ -1,108 +1,254 @@
-const listaContatos = document.getElementById("lista-contatos");
-const btnAdd = document.getElementById("add-contato");
-const btnEnviarTodos = document.getElementById("enviar-todos");
+// script.js (module)
+const STORAGE_KEYS = {
+  CONTACTS: 'wh_contacts_v1',
+  SAVED_MESSAGE: 'wh_saved_message_v1',
+  ME_NAME: 'wh_me_name_v1',
+  ME_COMPANY: 'wh_me_company_v1'
+};
 
-const chkAvaliacao = document.getElementById("chk-avaliacao");
-const chkEncerramento = document.getElementById("chk-encerramento");
-const txtMensagem = document.getElementById("mensagem");
+/* ---------- SELECTORS ---------- */
+const contactsListEl = document.getElementById('contacts-list');
+const addBtn = document.getElementById('add-contact');
+const contactNameEl = document.getElementById('contact-name');
+const contactPhoneEl = document.getElementById('contact-phone');
+const contactEmailEl = document.getElementById('contact-email');
 
-let contatos = [];
+const messageEl = document.getElementById('message');
+const saveTemplateBtn = document.getElementById('save-template');
+const clearTemplateBtn = document.getElementById('clear-template');
 
-/* ==========================
-   CHECKBOX: APENAS UMA OPÇÃO
-   ========================== */
-chkAvaliacao.addEventListener("change", () => {
-    if (chkAvaliacao.checked) {
-        chkEncerramento.checked = false;
-        txtMensagem.value =
-`Assunto: Lembrete de Avaliação de Suporte - Softem
+const tplAvaliacao = document.getElementById('tpl-avaliacao');
+const tplEncerramento = document.getElementById('tpl-encerramento');
+const tplContinuidade = document.getElementById('tpl-continuidade');
 
-Olá, tudo bem?
-Sou o [Nome do Tecnico], da equipe de Suporte da Softem. Notei que a avaliação do nosso último atendimento consta como pendente.
+const meNameEl = document.getElementById('me-name');
+const meCompanyEl = document.getElementById('me-company');
+
+let contacts = [];
+
+/* ---------- MESSAGES TEMPLATES ---------- */
+const TEMPLATES = {
+  avaliacao: `Assunto: Lembrete de Avaliação de Suporte - Softem
+
+"Olá, tudo bem?
+Sou o Flavio, da equipe de Suporte da Softem. Notei que a avaliação do nosso último atendimento consta como pendente.
 O formulário foi encaminhado para [e-mail do cliente]. Caso não o encontre na caixa de entrada, poderia verificar se caiu na caixa de Spam?
-Sua opinião é fundamental para o meu desempenho e para melhorarmos nossos serviços. Agradeço desde já!`;
-    } else {
-        txtMensagem.value = "";
-    }
-});
+Sua opinião é fundamental para o meu desempenho e para melhorarmos nossos serviços. Agradeço desde já!"`,
 
-chkEncerramento.addEventListener("change", () => {
-    if (chkEncerramento.checked) {
-        chkAvaliacao.checked = false;
-        txtMensagem.value =
-`Olá [Nome do Cliente!]
+  encerramento: `Olá [Nome do Cliente!]
 
-Meu nome é [nome do Tecnico].
+Meu nome é Fulano.
 
 Tentamos contato porém, não tivemos respostas de vossa parte para darmos continuidade no atendimento em aberto, referente a MOTIVO.
-Caso não tivermos resposta dentro de 24 horas, estaremos cancelando o chamado. Ficamos no aguardo do seu retorno.
+Caso não tivermos resposta dentro de 24 horas, estaremos cancelando o chamado, ficamos no aguardo do seu retorno,
+Obrigado!`,
 
-Obrigado!`;
-    } else {
-        txtMensagem.value = "";
-    }
-});
+  continuidade: `Olá! Meu nome é (digite seu nome), tudo bem?
 
-/* ==========================
-   ADICIONAR CONTATO
-   ========================== */
-btnAdd.addEventListener("click", () => {
-    const nome = document.getElementById("nome").value.trim();
-    const telefone = document.getElementById("telefone").value.trim();
+Estou entrando em contato referente à empresa (digite razão social ou CNPJ).
+Tentamos falar com você para dar continuidade ao atendimento em aberto, porém não obtivemos retorno.
 
-    if (!nome || !telefone) return alert("Preencha nome e telefone!");
+Você poderia, por gentileza, confirmar se podemos prosseguir com o atendimento agora?
 
-    contatos.push({ nome, telefone });
-    atualizarLista();
+Fico à disposição!`
+};
 
-    document.getElementById("nome").value = "";
-    document.getElementById("telefone").value = "";
-});
+/* ---------- UTIL ---------- */
+function saveToStorage() {
+  localStorage.setItem(STORAGE_KEYS.CONTACTS, JSON.stringify(contacts));
+}
 
-/* ==========================
-   ATUALIZAR LISTA NA TELA
-   ========================== */
-function atualizarLista() {
-    listaContatos.innerHTML = "";
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.CONTACTS);
+    contacts = raw ? JSON.parse(raw) : [];
+  } catch {
+    contacts = [];
+  }
 
-    contatos.forEach((c, i) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <span><strong>${c.nome}</strong> — ${c.telefone}</span>
-            <button class="del-btn" onclick="remover(${i})">X</button>
-        `;
-        listaContatos.appendChild(li);
+  // load saved message and profile fields
+  const savedMsg = localStorage.getItem(STORAGE_KEYS.SAVED_MESSAGE);
+  if (savedMsg) messageEl.value = savedMsg;
+
+  const mn = localStorage.getItem(STORAGE_KEYS.ME_NAME);
+  if (mn) meNameEl.value = mn;
+
+  const mc = localStorage.getItem(STORAGE_KEYS.ME_COMPANY);
+  if (mc) meCompanyEl.value = mc;
+}
+
+function formatPhone(raw) {
+  // remove non-digits
+  const digits = String(raw || '').replace(/\D/g, '');
+  return digits;
+}
+
+function openWhatsAppInNewTab(phone, text) {
+  // phone should be digits only with country code (e.g., 5511999998888)
+  const url = `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
+  // open in new tab
+  window.open(url, '_blank');
+}
+
+function replacePlaceholders(template, contact) {
+  let text = String(template || '');
+
+  text = text.replace(/\[e-mail do cliente\]/gi, contact.email || '');
+  text = text.replace(/\[Nome do Cliente!?]/gi, contact.name || '');
+  // handle [Nome do Cliente] variants (robust)
+  text = text.replace(/\[Nome do Cliente\]/gi, contact.name || '');
+  text = text.replace(/\(digite seu nome\)/gi, meNameEl.value || '');
+  text = text.replace(/\(digite razão social ou CNPJ\)/gi, meCompanyEl.value || '');
+  // also replace placeholder token in "Olá [Nome do Cliente!]" with name
+  text = text.replace(/\[Nome do Cliente!\]/gi, contact.name || '');
+  return text;
+}
+
+/* ---------- RENDER ---------- */
+function renderContacts() {
+  contactsListEl.innerHTML = '';
+  contacts.forEach((c, idx) => {
+    const item = document.createElement('div');
+    item.className = 'item';
+
+    const info = document.createElement('div');
+    info.className = 'info';
+    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = c.name || '(sem nome)';
+    const meta = document.createElement('div'); meta.className = 'meta';
+    meta.textContent = `${c.phone}${c.email ? ' • ' + c.email : ''}`;
+
+    info.appendChild(nm);
+    info.appendChild(meta);
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+
+    const sendBtn = document.createElement('button');
+    sendBtn.className = 'btn-send';
+    sendBtn.textContent = 'Enviar';
+    sendBtn.addEventListener('click', () => {
+      handleSendSingle(idx);
     });
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-del';
+    delBtn.textContent = 'Excluir';
+    delBtn.addEventListener('click', () => {
+      if (confirm(`Excluir contato "${c.name}"?`)) {
+        contacts.splice(idx, 1);
+        saveToStorage();
+        renderContacts();
+      }
+    });
+
+    actions.appendChild(sendBtn);
+    actions.appendChild(delBtn);
+
+    item.appendChild(info);
+    item.appendChild(actions);
+
+    contactsListEl.appendChild(item);
+  });
 }
 
-function remover(i) {
-    contatos.splice(i, 1);
-    atualizarLista();
+/* ---------- ACTIONS ---------- */
+function onlyOneCheckbox(checkedEl) {
+  // uncheck all then check the provided one (toggle)
+  const boxes = [tplAvaliacao, tplEncerramento, tplContinuidade];
+  boxes.forEach(b => {
+    if (b !== checkedEl) b.checked = false;
+  });
+
+  // load template into textarea if checked, else restore saved message
+  if (checkedEl.checked) {
+    if (checkedEl === tplAvaliacao) messageEl.value = TEMPLATES.avaliacao;
+    else if (checkedEl === tplEncerramento) messageEl.value = TEMPLATES.encerramento;
+    else if (checkedEl === tplContinuidade) messageEl.value = TEMPLATES.continuidade;
+  } else {
+    // restore saved message if any
+    const saved = localStorage.getItem(STORAGE_KEYS.SAVED_MESSAGE);
+    if (saved) messageEl.value = saved;
+  }
 }
 
-/* ==========================
-   ENVIAR PARA TODOS (1 ABA)
-   ========================== */
-btnEnviarTodos.addEventListener("click", async () => {
-    if (contatos.length === 0) return alert("Nenhum contato na lista!");
-    if (!txtMensagem.value.trim()) return alert("Mensagem vazia!");
+tplAvaliacao.addEventListener('change', () => onlyOneCheckbox(tplAvaliacao));
+tplEncerramento.addEventListener('change', () => onlyOneCheckbox(tplEncerramento));
+tplContinuidade.addEventListener('change', () => onlyOneCheckbox(tplContinuidade));
 
-    alert("O envio começará agora.\nIMPORTANTE: Não feche a aba do WhatsApp.");
-
-    for (let c of contatos) {
-        let msg = txtMensagem.value.replace("[Nome do Cliente!]", c.nome);
-
-        const url = `https://web.whatsapp.com/send?phone=${c.telefone}&text=${encodeURIComponent(msg)}`;
-
-        window.open(url, "_blank");
-
-        await esperar(4500); // tempo para WhatsApp carregar
-    }
-
-    alert("Mensagens carregadas! Agora clique Manualmente em 'ENVIAR' em cada conversa.");
+saveTemplateBtn.addEventListener('click', () => {
+  localStorage.setItem(STORAGE_KEYS.SAVED_MESSAGE, messageEl.value);
+  alert('Mensagem salva como padrão.');
 });
 
-/* Delay */
-function esperar(ms) {
-    return new Promise(res => setTimeout(res, ms));
+clearTemplateBtn.addEventListener('click', () => {
+  messageEl.value = '';
+  localStorage.removeItem(STORAGE_KEYS.SAVED_MESSAGE);
+  tplAvaliacao.checked = tplEncerramento.checked = tplContinuidade.checked = false;
+});
+
+meNameEl.addEventListener('change', () => {
+  localStorage.setItem(STORAGE_KEYS.ME_NAME, meNameEl.value);
+});
+meCompanyEl.addEventListener('change', () => {
+  localStorage.setItem(STORAGE_KEYS.ME_COMPANY, meCompanyEl.value);
+});
+
+/* add contact */
+addBtn.addEventListener('click', () => {
+  const name = contactNameEl.value.trim();
+  const phoneRaw = contactPhoneEl.value.trim();
+  const email = contactEmailEl.value.trim();
+
+  if (!phoneRaw) {
+    alert('Digite o telefone (com DDI). Ex: 5511999998888');
+    return;
+  }
+
+  const phone = formatPhone(phoneRaw);
+  if (!/^\d{8,15}$/.test(phone)) {
+    alert('Telefone inválido. Digite com DDI e apenas números (ex: 5511999998888).');
+    return;
+  }
+
+  const contact = { name, phone, email };
+  contacts.push(contact);
+  saveToStorage();
+  renderContacts();
+
+  // clear inputs
+  contactNameEl.value = '';
+  contactPhoneEl.value = '';
+  contactEmailEl.value = '';
+});
+
+/* enviar apenas 1 contato (abre nova aba com whatsapp web) */
+function handleSendSingle(index) {
+  const contact = contacts[index];
+  if (!contact) return;
+
+  // decide which message to use: if any checkbox selected, use the textarea (already set)
+  let text = messageEl.value.trim();
+  if (!text) {
+    alert('A mensagem está vazia. Escreva ou selecione uma opção.');
+    return;
+  }
+
+  // substitute placeholders
+  text = replacePlaceholders(text, contact);
+
+  // format phone and open whatsapp
+  const phone = formatPhone(contact.phone);
+  openWhatsAppInNewTab(phone, text);
 }
+
+/* ---------- INIT ---------- */
+function init() {
+  loadFromStorage();
+  renderContacts();
+
+  // If saved message exists but user had checkbox previously used, keep saved loaded
+  const saved = localStorage.getItem(STORAGE_KEYS.SAVED_MESSAGE);
+  if (saved) messageEl.value = saved;
+}
+
+init();

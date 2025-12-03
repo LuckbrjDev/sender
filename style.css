@@ -1,110 +1,213 @@
 body {
+    background: #f3f4f6;
     font-family: Arial, sans-serif;
-    background: #f5f5f7;
     margin: 0;
     padding: 0;
+    color: #111;
 }
 
 .container {
+    width: 92%;
+    max-width: 1000px;
+    margin: 30px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 18px;
+    font-size: 1.6rem;
+}
+
+/* layout */
+.top-row {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* mensagem / templates */
+.mensagem-box {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mensagem-box label {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.mensagem-box input[type="text"],
+.contato-add input,
+.mensagem-box textarea {
     width: 100%;
-    height: 100vh;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #d0d6dc;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
-.left-panel, .right-panel {
-    padding: 20px;
+.mensagem-box textarea {
+    height: 160px;
+    resize: vertical;
 }
 
-.left-panel {
-    width: 40%;
-    background: #ffffff;
-    border-right: 2px solid #ddd;
-}
-
-.right-panel {
-    width: 60%;
-    background: #fafafa;
-}
-
-h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-}
-
-.input-group {
+/* checkboxes */
+.checkbox-area {
+    margin-top: 8px;
     display: flex;
-    gap: 8px;
-    margin-bottom: 15px;
+    gap: 18px;
+    align-items: center;
 }
 
-.input-group input {
-    flex: 1;
-    padding: 8px;
-}
-
-#add-contato {
-    background: #4CAF50;
-    color: white;
-    padding: 8px 12px;
-    border: none;
+.checkbox-area label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
     cursor: pointer;
 }
 
-#add-contato:hover {
-    background: #45a049;
+/* botões da mensagem */
+.controls {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
 }
 
-#lista-contatos {
-    list-style: none;
-    padding: 0;
-    max-height: 60vh;
+.btn-save, .btn-clear {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-save {
+    background: #28a745;
+    color: white;
+}
+
+.btn-clear {
+    background: #6c757d;
+    color: white;
+}
+
+/* contatos */
+.contatos-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.contatos-box h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.05rem;
+}
+
+.contato-add {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.contato-add input {
+    flex: 1;
+}
+
+.btn-add {
+    padding: 9px 12px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* lista de contatos */
+.lista-contatos {
+    max-height: 420px;
     overflow-y: auto;
+    padding-right: 6px;
 }
 
-#lista-contatos li {
-    padding: 10px;
-    background: #f2f2f2;
-    margin-bottom: 8px;
+.lista-contatos .item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 6px;
-}
-
-.del-btn {
-    background: red;
-    color: white;
-    border: none;
-    padding: 5px 9px;
-    cursor: pointer;
-}
-
-.enviar-btn {
-    margin-top: 20px;
-    width: 100%;
-    background: #0088cc;
-    color: white;
-    padding: 12px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.enviar-btn:hover {
-    background: #0077b3;
-}
-
-.checkbox-group {
-    margin-bottom: 15px;
-    display: flex;
-    gap: 20px;
-    font-size: 18px;
-}
-
-textarea {
-    width: 100%;
-    height: 60vh;
+    background: #eef2f6;
     padding: 10px;
-    font-size: 16px;
-    resize: none;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info .name {
+    font-weight: 700;
+}
+
+.info .meta {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* botões item */
+.item .actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.item button {
+    padding: 6px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.btn-del {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-send {
+    background: #007bff;
+    color: white;
+}
+
+/* nota e footer */
+.note {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+footer {
+    margin-top: 18px;
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* responsivo */
+@media (max-width: 900px) {
+    .top-row {
+        grid-template-columns: 1fr;
+    }
+
+    .contatos-box {
+        margin-top: 10px;
+    }
 }
